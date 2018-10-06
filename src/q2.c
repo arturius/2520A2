@@ -7,7 +7,7 @@
 #include"A2.h"
 
 int main(){
-    
+    printf("HO\n");    
     return 0;
 }
 
