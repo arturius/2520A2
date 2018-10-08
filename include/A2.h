@@ -35,16 +35,27 @@ carNode *checkForPlate(carNode **givenList, char *givenPlate);
 void insertAndSortNode( carNode *givenNode, carNode **targetList, int sortFlag);
 /*If sortflag = 0 puts it in the front of the list, if sortFlag = 1 then sorting by milage fromgreatest to least, if Sort flag =2 then sorting by return date */
 
-void deleteNode(carNode *targetNode);
-void deleteList (carNode **targetList);
+void deleteCarNode(carNode *targetNode);
+void deleteCarList (carNode **targetList);
 
 carNode *copyNode(carNode *givenNode);
 int listSize(carNode **givenList);
 void loadLnkdLsts(FILE *fp, carNode **rented, carNode **avalible, carNode **repair);
 void writeLnkdLsts(FILE *fp, carNode **rented, carNode **avalible, carNode **repair);
 /*Question 2 structs and Functions*/
+//structs
+typedef struct stackNodeStruct stackNode;
+struct stackNodeStruct{
+    double value;
+    stackNode *next;
+};
+//functions
+stackNode *popStack (stackNode **list);
+void pushNode (stackNode **list, stackNode *newNode);
+stackNode *newStackNode(double value);
 
-
+void deleteStackNode(stackNode *targetNode);
+void deleteStackList (stackNode **targetList);
 #endif
 
   
