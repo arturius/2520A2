@@ -15,7 +15,7 @@
 //structs
 typedef struct carNodeStruct carNode;
 struct carNodeStruct{
-    char *plateNum;
+    char plateNum[10];
     int millage;
     int returnDate;
     int profit;
@@ -23,15 +23,15 @@ struct carNodeStruct{
     carNode *next;
 };
 //functions
-carNode *newCarNode( char *givenPlate, int givenMillage, int givenReturnDate);
+carNode *newCarNode( char givenPlate[10], int givenMillage, int givenReturnDate);
 void popNode (carNode **givenList, carNode *targetNode);
 
 void transferNode(carNode **sourceList, carNode **destList, carNode *givenNode,int sortFlag);
 void printList(carNode **givenList);
 
 void rentCar(carNode **rented, carNode **avalible,int givenDate);
-void carReturned (carNode **rented, carNode **targetList, char *givenPlate, int newMillage);
-carNode *checkForPlate(carNode **givenList, char *givenPlate);
+void carReturned (carNode **rented, carNode **targetList, char givenPlate[10], int newMillage);
+carNode *checkForPlate(carNode **givenList, char givenPlate[10]);
 void insertAndSortNode( carNode *givenNode, carNode **targetList, int sortFlag);
 /*If sortflag = 0 puts it in the front of the list, if sortFlag = 1 then sorting by milage fromgreatest to least, if Sort flag =2 then sorting by return date */
 
