@@ -14,15 +14,14 @@ int main(int argc,char **argv){
     stackNode *list;
     stackNode *holding;
     if (argc == 2){
-        printf("%s\n",argv[1]);
         for (i = 0;argv[1][i]; i++){
-            printf("doing %c\n",argv[1][i]);
+            /*Code is based of the the pseudo code from https://en.wikipedia.org/Reverse_Polish_notation
+            */
             switch (argv[1][i]){
                 case '+':
                     val1 = popStack(&list);
                     val2 = popStack(&list);
                     result = val2->value + val1->value;
-                    printf("Result %f, val1:%f, val2 %f\n",result,val1->value,val2->value);
                     free(val1);
                     free(val2);
                     holding = newStackNode(result);
@@ -33,7 +32,6 @@ int main(int argc,char **argv){
                     val1 = popStack(&list);
                     val2 = popStack(&list);
                     result = val2->value - val1->value;
-printf("Result %f, val1:%f, val2 %f\n",result,val1->value,val2->value);
                     free(val1);
                     free(val2);
                     holding = newStackNode(result);
@@ -44,7 +42,6 @@ printf("Result %f, val1:%f, val2 %f\n",result,val1->value,val2->value);
                     val1 = popStack(&list);
                     val2 = popStack(&list);
                     result = val2->value * val1->value;
-printf("Result %f, val1:%f, val2 %f\n",result,val1->value,val2->value);
                     free(val1);
                     free(val2);
                     holding = newStackNode(result);
@@ -56,7 +53,6 @@ printf("Result %f, val1:%f, val2 %f\n",result,val1->value,val2->value);
                     val1 = popStack(&list);
                     val2 = popStack(&list);
                     result = val2->value / val1->value;
-printf("Result %f, val1:%f, val2 %f\n",result,val1->value,val2->value);
                     free(val1);
                     free(val2);
                     holding = newStackNode(result);
@@ -65,7 +61,7 @@ printf("Result %f, val1:%f, val2 %f\n",result,val1->value,val2->value);
                     break;
 
                 default:
-                    convert = (double)argv[1][i] - '0';
+                    convert = (double)argv[1][i] - '0';//converting char to a double
                     printf("convert %f\n",convert);
                     holding = newStackNode(convert);
                     pushNode(&list,holding);
@@ -79,6 +75,7 @@ printf("Result %f, val1:%f, val2 %f\n",result,val1->value,val2->value);
     }
     return 0;
 }
+//returns and removes the  node from the top of a given stack
 stackNode *popStack (stackNode **list){
     stackNode *returnNode;
     returnNode = *list;
@@ -86,12 +83,12 @@ stackNode *popStack (stackNode **list){
     returnNode-> next = NULL;
     return returnNode;
 }
-
+//pushes node to the top of a given stack
 void pushNode (stackNode **list, stackNode *newNode){
     newNode-> next = *list;
     *list = newNode;
 }
-
+//creates a new stack node
 stackNode *newStackNode(double value){
     stackNode *newNode = NULL;
     newNode = malloc(sizeof(stackNode));

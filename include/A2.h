@@ -15,11 +15,10 @@
 //structs
 typedef struct carNodeStruct carNode;
 struct carNodeStruct{
-    char plateNum[10];
     int millage;
     int returnDate;
     double profit;
-
+    char plateNum[10];
     carNode *next;
 };
 //functions
