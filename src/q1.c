@@ -17,13 +17,14 @@ int main(){
     carNode *repair = NULL;
     carNode *temp = NULL;
     char rentalRecord[] = "listFile.bin";
-/*
-    fp = fopen(rentalRecord,"rb"+);
+
+    fp = fopen(rentalRecord,"rb");
     if (fp == NULL){
         fprintf(stderr,"The file'%s' failed to open\n",rentalRecord);
         exit(1);
-    }*/
-
+    }
+    loadLnkdLsts(fp,&rented,&avalible,&repair);
+    fclose(fp);
     printf("Hello and welcome to car rental company database\n");
     do{
         printf("Please enter a transaction code\n");
@@ -88,7 +89,14 @@ int main(){
                 break;
 
             case 7:
-                
+                printf ("Total profit is $%.2f.\n",totalProfit(&rented,&avalible,&repair));
+                fp = fopen(rentalRecord,"wb");
+                    if (fp == NULL){
+                    fprintf(stderr,"The file'%s' failed to open\n",rentalRecord);
+                    exit(1);
+                }
+                writeLnkdLsts(fp, &rented, &avalible, &repair);
+                fclose(fp);
                 break;
 
             default:
@@ -100,12 +108,11 @@ int main(){
     
     return 0;
 }
-carNode *newCarNode(char *givenPlate, int givenMillage, int givenReturnDate){
+carNode *newCarNode(char givenPlate[10], int givenMillage, int givenReturnDate){
     carNode *newNode;
     newNode = malloc(sizeof (carNode));
     newNode->millage = givenMillage;
     newNode->returnDate = givenReturnDate;
-    newNode->plateNum = malloc(strlen(givenPlate)+1);
     strcpy(newNode->plateNum, givenPlate);
 
     newNode->next = NULL;
@@ -145,6 +152,28 @@ void printList(carNode **givenList){
     }
 }
 
+double totalProfit(carNode **rented, carNode **avalible, carNode **repair){
+    double profit = 0;
+    carNode *list;
+    
+    list = *rented;
+    while (list){
+        profit += list->profit;
+        list = list->next;
+    }
+    list = *repair;
+    while (list){
+        profit += list->profit;
+        list = list->next;
+    }
+    list = *avalible;
+    while (list){
+        profit += list->profit;
+        list = list->next;
+    }
+    return profit;
+}
+
 void rentCar(carNode **rented, carNode **avalible,int givenDate){
     carNode *temp = NULL;
     
@@ -155,17 +184,25 @@ void rentCar(carNode **rented, carNode **avalible,int givenDate){
         transferNode(avalible, rented, temp,2);
         printf("Car succesfuly rented\n");
     }else{
-            printf("Invaled Plate Number\n");
+        printf("Invaled Plate Number\n");
     }
     
 }
 
-void carReturned (carNode **rented, carNode **targetList, char *givenPlate, int newMillage){
+void carReturned (carNode **rented, carNode **targetList, char givenPlate[10], int newMillage){
     carNode *temp = NULL;
-    
+    double charge = 0;
     temp = checkForPlate(rented, givenPlate);
     if (temp){
         temp->returnDate = 0;
+        if (newMillage < 100){
+            charge = 40;
+        }else{
+            charge = 40 + (0.15*(newMillage-100));
+        }
+        printf("Charge of $%.2f is required\n",charge);
+        temp-> millage += newMillage;
+        temp-> profit += charge;
         transferNode(rented, targetList, temp,1);
         printf("Car succesfuly returned\n");
     }else{
@@ -173,7 +210,7 @@ void carReturned (carNode **rented, carNode **targetList, char *givenPlate, int 
     }
 }
 
-carNode *checkForPlate(carNode **givenList, char *givenPlate){
+carNode *checkForPlate(carNode **givenList, char givenPlate[10]){
     carNode *list;
     list = *givenList;
     while(list){
@@ -226,14 +263,16 @@ void insertAndSortNode(carNode *givenNode, carNode **targetList, int sortFlag){
     }
 }
 
-void deleteNode(carNode *targetNode){
-    free(targetNode->plateNum);
+void deleteCarNode(carNode *targetNode){
     free(targetNode);
 }
 
-void deleteList (carNode **targetList){
+void deleteCarList (carNode **targetList){
+    carNode *temp;
     while(*targetList){
-        
+        temp = (*targetList)->next;
+        deleteCarNode(*targetList);
+        *targetList = temp;
     }
 }
 
@@ -256,7 +295,7 @@ carNode *copyNode(carNode *givenNode){
     newNode = malloc(sizeof (carNode));
     newNode->millage = givenNode-> millage;
     newNode->returnDate =  givenNode-> returnDate;
-    newNode->plateNum = malloc(strlen(givenNode-> plateNum)+1);
+    
     strcpy(newNode->plateNum, givenNode-> plateNum);
 
     newNode->next = givenNode->next;
@@ -269,18 +308,28 @@ void loadLnkdLsts(FILE *fp, carNode **rented, carNode **avalible, carNode **repa
     int avalibleLen = 0;
     int repairLen = 0;
     int i;
-    carNode *holding;
+    carNode holding;
+    
     fseek (fp, 0, SEEK_SET);
     fread (&rentLen,sizeof(int),1,fp);
     fread (&avalibleLen,sizeof(int),1,fp);
     fread (&repairLen,sizeof(int),1,fp);
     fseek(fp, sizeof(int)*3, SEEK_SET);
-
+    
     for(i = 1; i<= rentLen;i++){
-        fread()
+        fread(&holding,sizeof(carNode),1,fp);
+        insertAndSortNode(newCarNode(holding.plateNum, holding.millage, holding.returnDate), rented, 2);
+    }
+    for(i = 1; i<= avalibleLen;i++){
+        fread(&holding,sizeof(carNode),1,fp);
+        insertAndSortNode(newCarNode(holding.plateNum, holding.millage, holding.returnDate), avalible, 1);
     }
 
-}
+    for(i = 1; i<= repairLen;i++){
+        fread(&holding,sizeof(carNode),1,fp);
+        insertAndSortNode(newCarNode(holding.plateNum, holding.millage, holding.returnDate), repair, 1);
+    }
+ }
 
 void writeLnkdLsts(FILE *fp, carNode **rented, carNode **avalible, carNode **repair){
     int rentLen = listSize(rented);
@@ -288,16 +337,16 @@ void writeLnkdLsts(FILE *fp, carNode **rented, carNode **avalible, carNode **rep
     int repairLen = listSize(repair);
     carNode *holding, *list;
     fseek (fp,0,SEEK_SET);
-    fwrite(&rentLen,sizeof(int),fp);
-    fwrite(&avalibleLen,sizeof(int),fp);
-    fwrite(&repairLen, sizeof(int),fp);
+    fwrite(&rentLen,sizeof(int),1,fp);
+    fwrite(&avalibleLen,sizeof(int),1,fp);
+    fwrite(&repairLen, sizeof(int),1,fp);
     
     list = *rented;
     while (list){
         holding = copyNode(list);
         holding->next = NULL;
-        fwrite(&holding,sizeof(carNode),fp);//have to fix the string problem 
-        deleteNode(holding);
+        fwrite(holding,sizeof(carNode),1,fp);
+        deleteCarNode(holding);
         list = list->next;
     }
     
@@ -305,8 +354,8 @@ void writeLnkdLsts(FILE *fp, carNode **rented, carNode **avalible, carNode **rep
     while (list){
         holding = copyNode(list);
         holding->next = NULL;
-        fwrite(&holding,sizeof(carNode),fp);
-        deleteNode(holding);
+        fwrite(holding,sizeof(carNode),1,fp);
+        deleteCarNode(holding);
         list = list->next;
     }
 
@@ -314,8 +363,8 @@ void writeLnkdLsts(FILE *fp, carNode **rented, carNode **avalible, carNode **rep
     while (list){
         holding = copyNode(list);
         holding->next = NULL;
-        fwrite(&holding,sizeof(carNode),fp);
-        deleteNode(holding);
+        fwrite(holding,sizeof(carNode),1,fp);
+        deleteCarNode(holding);
         list = list->next;
     }
 }
