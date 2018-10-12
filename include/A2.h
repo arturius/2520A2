@@ -18,7 +18,7 @@ struct carNodeStruct{
     char plateNum[10];
     int millage;
     int returnDate;
-    int profit;
+    double profit;
 
     carNode *next;
 };
@@ -28,6 +28,7 @@ void popNode (carNode **givenList, carNode *targetNode);
 
 void transferNode(carNode **sourceList, carNode **destList, carNode *givenNode,int sortFlag);
 void printList(carNode **givenList);
+double totalProfit(carNode **rented, carNode **avalible, carNode **repair);
 
 void rentCar(carNode **rented, carNode **avalible,int givenDate);
 void carReturned (carNode **rented, carNode **targetList, char givenPlate[10], int newMillage);
